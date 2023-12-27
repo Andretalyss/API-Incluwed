@@ -65,6 +65,7 @@ def sign_in_user(db_config, secret, email, password):
                     'user_id': row[0],
                     'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
                 }
+                
                 token = jwt.encode(payload, secret, algorithm='HS512')
                 return token, 0
             else:
