@@ -1,30 +1,70 @@
-from dotenv import load_dotenv
-import os
+import boto3, json
 
 def set_environments():
-    load_dotenv()
+    ssm_client = boto3.client('ssm', region_name='us-east-1')
+    parameter_name = '/api/env/json'
 
-    db_config = {
-        'database': os.getenv('DB_DATABASE'),
-        'user': os.getenv('DB_USER'),
-        'password': os.getenv('DB_PASSWORD'),
-        'host': os.getenv('DB_HOST'),
-        'port': os.getenv('DB_PORT')
-    }
+    try:
+        response = ssm_client.get_parameter(
+            Name=parameter_name,
+            WithDecryption=False
+        )
 
-    return db_config
+        # print(response['Parameter']['Value'])
+        dados = json.loads(response['Parameter']['Value'])
 
+        DB_HOST=dados['DB_HOST']
+        DB_USER=dados['DB_USER']
+        DB_PASSWORD=dados['DB_PASSWORD']
+        DB_DATABASE=dados['DB_DATABASE']
+        DB_PORT=dados['DB_PORT']
+
+        db_config = {
+            'database': DB_DATABASE,
+            'user': DB_USER,
+            'password': DB_PASSWORD,
+            'host': DB_HOST,
+            'port': DB_PORT
+        }
+
+        return db_config
+
+    except ssm_client.exceptions.ParameterNotFound:
+        print("Não existe o parametro")
+    except Exception as e:
+        print(f"{e}")
+
+   
 def set_environments_with_secret():
-    load_dotenv()
+    ssm_client = boto3.client('ssm', region_name='us-east-1')
+    parameter_name = '/api/env/json'
 
-    secret = os.getenv('SECRET_TOKEN')
+    try:
+        response = ssm_client.get_parameter(
+            Name=parameter_name,
+            WithDecryption=False
+        )
 
-    db_config = {
-        'database': os.getenv('DB_DATABASE'),
-        'user': os.getenv('DB_USER'),
-        'password': os.getenv('DB_PASSWORD'),
-        'host': os.getenv('DB_HOST'),
-        'port': os.getenv('DB_PORT')
-    }
+        # print(response['Parameter']['Value'])
+        dados = json.loads(response['Parameter']['Value'])
 
-    return db_config, secret
+        DB_HOST=dados['DB_HOST']
+        DB_USER=dados['DB_USER']
+        DB_PASSWORD=dados['DB_PASSWORD']
+        DB_DATABASE=dados['DB_DATABASE']
+        DB_PORT=dados['DB_PORT']
+        secret=dados['SECRET_TOKEN']
+
+        db_config = {
+            'database': DB_DATABASE,
+            'user': DB_USER,
+            'password': DB_PASSWORD,
+            'host': DB_HOST,
+            'port': DB_PORT
+        }
+
+        return db_config, secret
+    except ssm_client.exceptions.ParameterNotFound:
+        print("Não existe o parametro")
+    except Exception as e:
+        print(f"{e}")

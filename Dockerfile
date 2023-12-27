@@ -9,7 +9,8 @@ RUN pip install Flask && \
     pip install python-dotenv && \
     pip install bcrypt && \
     pip install pyjwt && \
-    pip install gunicorn
+    pip install gunicorn && \
+    pip install boto3
 
 COPY main.py main.py
 COPY config/ config
